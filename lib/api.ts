@@ -110,11 +110,14 @@ export const getEnergyAnalytics = async (roomId: string, params: URLSearchParams
   if (USE_DUMMY_DATA) {
     await delay(400);
     return {
-      timestamps: ['08:00', '09:00', '10:00', '11:00', '12:00'],
-      values: [2.1, 2.5, 3.0, 2.8, 1.5],
-      total: 11.9,
-      unit: 'kWh'
-    };
+      room_id: roomId,
+      date_from: params.get('date_from') || new Date().toISOString(),
+      date_to: params.get('date_to') || new Date().toISOString(),
+      runtime_hours: 12.5,
+      estimated_kwh: 11.9,
+      avg_temperature: 24.3,
+      avg_humidity: 45.2
+    } as AnalyticsData;
   }
   return request<AnalyticsData>(`/api/analytics/energy/${roomId}?${params}`, token);
 };
