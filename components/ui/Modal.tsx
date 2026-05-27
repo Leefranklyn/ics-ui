@@ -5,8 +5,8 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
-  onConfirm: () => void;
-  confirmLabel: string;
+  onConfirm?: () => void;
+  confirmLabel?: string;
 }
 
 export default function Modal({ isOpen, onClose, title, children, onConfirm, confirmLabel }: ModalProps) {
@@ -22,20 +22,22 @@ export default function Modal({ isOpen, onClose, title, children, onConfirm, con
         <div className="p-4 text-textMuted">
           {children}
         </div>
-        <div className="p-4 border-t border-border flex justify-end gap-3 bg-surface/50">
-          <button 
-            onClick={onClose}
-            className="px-4 py-2 rounded text-sm font-medium text-textBase bg-surface2 hover:bg-border transition-colors"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={onConfirm}
-            className="px-4 py-2 rounded text-sm font-medium text-white bg-accent hover:bg-accentDim transition-colors"
-          >
-            {confirmLabel}
-          </button>
-        </div>
+        {(onConfirm || confirmLabel) && (
+          <div className="p-4 border-t border-border flex justify-end gap-3 bg-surface/50">
+            <button 
+              onClick={onClose}
+              className="px-4 py-2 rounded text-sm font-medium text-textBase bg-surface2 hover:bg-border transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onConfirm}
+              className="px-4 py-2 rounded text-sm font-medium text-white bg-accent hover:bg-accentDim transition-colors"
+            >
+              {confirmLabel}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

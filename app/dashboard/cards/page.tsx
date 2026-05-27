@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth, useRequireAuth } from '@/hooks/useAuth';
-import { getAllRooms, getUsers, registerCard, updateCardStatus } from '@/lib/api';
-import { Room, User, RegisterCardPayload } from '@/types';
+import { getUsers, registerCard, updateCardStatus } from '@/lib/api';
+import { User, RegisterCardPayload } from '@/types';
 import { useToast } from '@/components/ui/Toast';
 import RegisterCardForm from '@/components/cards/RegisterCardForm';
+import RegistrationModal from '@/components/cards/RegistrationModal';
 import CardList from '@/components/cards/CardList';
 
 export default function CardsPage() {
@@ -13,8 +14,8 @@ export default function CardsPage() {
   const { token } = useAuth();
   const { showToast } = useToast();
 
-  const [rooms, setRooms] = useState<Room[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [registering, setRegistering] = useState(false);
@@ -23,11 +24,7 @@ export default function CardsPage() {
     async function init() {
       if (!token) return;
       try {
-        const [r, u] = await Promise.all([
-          getAllRooms(token),
-          getUsers(new URLSearchParams({ limit: '1000' }), token) // Fetch all for prototype
-        ]);
-        setRooms(r);
+        const u = await getUsers(new URLSearchParams({ limit: '100', page: '1' }), token);
         setUsers(u.items || []);
       } catch (err: any) {
         showToast(err.message || 'Failed to load data', 'error');
@@ -45,7 +42,7 @@ export default function CardsPage() {
       const res = await registerCard(payload, token);
       showToast(`User registered successfully (ID: ${res.user_id})`, 'success');
       // Refetch
-      const u = await getUsers(new URLSearchParams({ limit: '1000' }), token);
+      const u = await getUsers(new URLSearchParams({ limit: '100', page: '1' }), token);
       setUsers(u.items || []);
     } catch (err: any) {
       showToast(err.message || 'Failed to register card', 'error');
@@ -68,14 +65,38 @@ export default function CardsPage() {
     }
   };
 
+  const handleRegistrationSuccess = (uid: string) => {
+    showToast(`User registered successfully with card UID: ${uid}`, 'success');
+    setShowRegistrationModal(false);
+    // Refetch users
+    async function refetchUsers() {
+      if (!token) return;
+      try {
+        const u = await getUsers(new URLSearchParams({ limit: '100', page: '1' }), token);
+        setUsers(u.items || []);
+      } catch (err: any) {
+        console.error('Failed to refetch users:', err);
+      }
+    }
+    refetchUsers();
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Card Management</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Card Management</h1>
+        <button
+          onClick={() => setShowRegistrationModal(true)}
+          className="px-4 py-2 rounded text-sm font-medium bg-accent hover:bg-accentDim text-white transition-colors"
+        >
+          + Tap to Register
+        </button>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           <RegisterCardForm 
-            rooms={rooms} 
+            rooms={[]}  // Rooms are optional for registration
             onSubmit={handleRegister} 
             loading={registering} 
           />
@@ -88,6 +109,13 @@ export default function CardsPage() {
           />
         </div>
       </div>
+
+      <RegistrationModal
+        isOpen={showRegistrationModal}
+        onClose={() => setShowRegistrationModal(false)}
+        onSuccess={handleRegistrationSuccess}
+        token={token}
+      />
     </div>
   );
 }

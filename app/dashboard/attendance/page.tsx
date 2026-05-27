@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import FilterBar from '@/components/attendance/FilterBar';
 import AttendanceTable from '@/components/attendance/AttendanceTable';
-import { getAttendance, getAllRooms, getCoursesByRoom, downloadAttendanceCsv } from '@/lib/api';
-import { AttendanceRecord, Room, Course, ApiError } from '@/types';
+import { getAttendance, downloadAttendanceCsv } from '@/lib/api';
+import { AttendanceRecord, Room, ApiError } from '@/types';
 import { useToast } from '@/components/ui/Toast';
 import { formatDateTime } from '@/lib/utils';
 import Pill from '@/components/ui/Pill';
@@ -22,7 +22,6 @@ export default function AttendancePage() {
   const limit = 20;
 
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
   
   const lastParams = useRef<URLSearchParams>(new URLSearchParams());
   
@@ -30,23 +29,30 @@ export default function AttendancePage() {
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    async function init() {
-      if (!token || !user) return;
-      try {
-        let availableRooms: Room[] = [];
-        if (user.role === 'admin') {
-          availableRooms = await getAllRooms(token);
-        } else {
-          availableRooms = user.rooms.map(id => ({
-            room_id: id, room_name: `Room ${id}`, 
-            capacity: 0, lock_state: 'locked', current_occupancy: 0, 
-            ac_setpoint: 0, time_windows: {}, assigned_staff: []
-          }));
-        }
-        setRooms(availableRooms);
-      } catch(e) {}
+    if (!token || !user) return;
+    try {
+      let availableRooms: Room[] = [];
+      if (user.rooms && Array.isArray(user.rooms)) {
+        availableRooms = user.rooms.map(id => ({
+          room_id: id, 
+          room_name: `Room ${id}`, 
+          capacity: 0, 
+          lock_state: 'locked' as const,
+          current_occupancy: 0, 
+          ac_setpoint: 0, 
+          time_windows: {}, 
+          assigned_staff: []
+        }));
+      }
+      
+      if (availableRooms.length === 0) {
+        setError('No rooms available. Please contact your administrator.');
+      }
+      
+      setRooms(availableRooms);
+    } catch (e) {
+      console.error('Failed to initialize rooms:', e);
     }
-    init();
   }, [token, user]);
 
   const loadData = async (params: URLSearchParams) => {
@@ -54,24 +60,14 @@ export default function AttendancePage() {
     setLoading(true);
     setError(null);
     try {
-      // If room changed, fetch courses
-      const rid = params.get('room_id');
-      if (rid && rid !== lastParams.current.get('room_id')) {
-        const c = await getCoursesByRoom(rid, token);
-        setCourses(c);
-      } else if (!rid) {
-        setCourses([]);
-      }
-      
       const res: any = await getAttendance(params, token);
-      // Let's assume the API returns PaginatedResponse<AttendanceRecord>
-      // if it returns array, we handle it as array
+      // Backend returns array directly
       if (Array.isArray(res)) {
-         setRecords(res);
-         setTotal(res.length);
+        setRecords(res);
+        setTotal(res.length);
       } else {
-         setRecords(res.items || []);
-         setTotal(res.total || 0);
+        setRecords(res.items || []);
+        setTotal(res.total || 0);
       }
       lastParams.current = params;
     } catch (err: any) {
@@ -127,7 +123,7 @@ export default function AttendancePage() {
 
       <FilterBar 
         rooms={rooms} 
-        courses={courses} 
+        courses={[]}
         onFilter={handleFilter}
         onExportCsv={handleExportCsv}
         onExportPdf={handleExportPdf}
@@ -165,8 +161,8 @@ export default function AttendancePage() {
             </tr>
           </thead>
           <tbody>
-            {records.map(rec => (
-              <tr key={rec.log_id} className="border-b border-gray-300">
+            {records.map((rec, idx) => (
+              <tr key={`${rec.timestamp}-${idx}`} className="border-b border-gray-300">
                 <td className="py-2 pr-2">{formatDateTime(rec.timestamp)}</td>
                 <td className="py-2 pr-2">{rec.full_name}</td>
                 <td className="py-2 pr-2">{rec.matric_number}</td>

@@ -4,13 +4,16 @@ export type CardStatus = 'active' | 'suspended';
 
 export type EventType = 'entry' | 'exit' | 'denied';
 
-export type DoorState = 'opened' | 'closed';
+export type DoorState = 'entry' | 'exit';
 
 export type LockState = 'locked' | 'unlocked';
 
 export type AlertType =
-  | 'overcapacity'
-  | 'high_temp'
+  | 'temperature_high'
+  | 'temperature_low'
+  | 'humidity_high'
+  | 'humidity_low'
+  | 'occupancy_critical'
   | 'network_outage'
   | 'hw_fault'
   | 'unauth_attempt';
@@ -18,10 +21,13 @@ export type AlertType =
 export type Severity = 'warning' | 'critical';
 
 export interface TokenPayload {
-  sub: string;
+  sub: string; // User UUID
   role: Role;
-  rooms: string[];
-  exp: number;
+  email?: string;
+  name?: string;
+  rooms?: string[]; // Optional: accessible room IDs
+  exp?: number; // Expiration timestamp
+  [key: string]: any; // Allow other fields from backend
 }
 
 export interface AuthState {
@@ -50,9 +56,15 @@ export interface RoomDashboardData {
   capacity: number;
   lock_state: LockState;
   ac_setpoint: number;
-  temperature: number;
-  humidity: number;
-  recent_events: AccessEvent[];
+  temperature: number | null;
+  humidity: number | null;
+  recent_events: Array<{
+    full_name: string | null;
+    matric_number: string | null;
+    event_type: EventType;
+    timestamp: string;
+    door_state: DoorState;
+  }>;
 }
 
 export interface AccessEvent {
@@ -110,12 +122,10 @@ export interface Course {
 }
 
 export interface AttendanceRecord {
-  log_id: string;
   timestamp: string;
-  full_name: string;
-  matric_number: string;
-  course_code: string;
-  course_name: string;
+  full_name: string | null;
+  matric_number: string | null;
+  course_code: string | null;
   event_type: EventType;
   door_state: DoorState;
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { getEnergyAnalytics, getAllRooms } from '@/lib/api';
+import { getEnergyAnalytics } from '@/lib/api';
 import { AnalyticsData, Room } from '@/types';
 import OccupancyChart from '@/components/analytics/OccupancyChart';
 import TemperatureChart from '@/components/analytics/TemperatureChart';
@@ -27,32 +27,38 @@ export default function AnalyticsPage() {
   const selectedRoom = rooms.find(r => r.room_id === roomId);
 
   useEffect(() => {
-    async function init() {
-      if (!token || !user) return;
-      try {
-        let availableRooms: Room[] = [];
-        if (user.role === 'admin') {
-          availableRooms = await getAllRooms(token);
-        } else {
-          availableRooms = user.rooms.map(id => ({
-            room_id: id, room_name: `Room ${id}`, 
-            capacity: 50, lock_state: 'locked', current_occupancy: 0, 
-            ac_setpoint: 0, time_windows: {}, assigned_staff: []
-          }));
-        }
-        setRooms(availableRooms);
-        const saved = sessionStorage.getItem('selectedRoomId');
-        if (saved) setRoomId(saved);
-        
-        const today = new Date();
-        const lastWeek = new Date();
-        lastWeek.setDate(lastWeek.getDate() - 7);
-        setDateTo(today.toISOString().split('T')[0]);
-        setDateFrom(lastWeek.toISOString().split('T')[0]);
-        
-      } catch(e) {}
+    if (!token || !user) return;
+    try {
+      let availableRooms: Room[] = [];
+      if (user.rooms && Array.isArray(user.rooms)) {
+        availableRooms = user.rooms.map(id => ({
+          room_id: id, 
+          room_name: `Room ${id}`, 
+          capacity: 50, 
+          lock_state: 'locked' as const,
+          current_occupancy: 0, 
+          ac_setpoint: 0, 
+          time_windows: {}, 
+          assigned_staff: []
+        }));
+      }
+      setRooms(availableRooms);
+      const saved = sessionStorage.getItem('selectedRoomId');
+      if (saved && availableRooms.some(r => r.room_id === saved)) {
+        setRoomId(saved);
+      } else if (availableRooms.length > 0) {
+        setRoomId(availableRooms[0].room_id);
+      }
+      
+      const today = new Date();
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      setDateTo(today.toISOString().split('T')[0]);
+      setDateFrom(lastWeek.toISOString().split('T')[0]);
+      
+    } catch (e) {
+      console.error('Failed to initialize analytics:', e);
     }
-    init();
   }, [token, user]);
 
   const loadData = async () => {

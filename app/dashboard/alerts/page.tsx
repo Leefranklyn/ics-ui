@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useInterval } from '@/hooks/useInterval';
-import { getAlerts, getAllRooms } from '@/lib/api';
+import { getAlerts } from '@/lib/api';
 import { Alert, Room } from '@/types';
 import AlertFeed from '@/components/dashboard/AlertFeed';
 
@@ -19,23 +19,25 @@ export default function AlertsPage() {
   const [showAck, setShowAck] = useState(false);
 
   useEffect(() => {
-    async function init() {
-      if (!token || !user) return;
-      try {
-        let availableRooms: Room[] = [];
-        if (user.role === 'admin') {
-          availableRooms = await getAllRooms(token);
-        } else {
-          availableRooms = user.rooms.map(id => ({
-            room_id: id, room_name: `Room ${id}`, 
-            capacity: 0, lock_state: 'locked', current_occupancy: 0, 
-            ac_setpoint: 0, time_windows: {}, assigned_staff: []
-          }));
-        }
-        setRooms(availableRooms);
-      } catch(e) {}
+    if (!token || !user) return;
+    try {
+      let availableRooms: Room[] = [];
+      if (user.rooms && Array.isArray(user.rooms)) {
+        availableRooms = user.rooms.map(id => ({
+          room_id: id, 
+          room_name: `Room ${id}`, 
+          capacity: 0, 
+          lock_state: 'locked' as const,
+          current_occupancy: 0, 
+          ac_setpoint: 0, 
+          time_windows: {}, 
+          assigned_staff: []
+        }));
+      }
+      setRooms(availableRooms);
+    } catch (e) {
+      console.error('Failed to initialize rooms:', e);
     }
-    init();
   }, [token, user]);
 
   const loadAlerts = useCallback(async () => {

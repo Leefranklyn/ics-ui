@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useInterval } from '@/hooks/useInterval';
-import { getRoomDashboard, getAllRooms, getAlerts } from '@/lib/api';
+import { getRoomDashboard, getAlerts } from '@/lib/api';
 import { Room, RoomDashboardData, Alert } from '@/types';
 import RoomSelector from '@/components/dashboard/RoomSelector';
 import StatCard from '@/components/dashboard/StatCard';
@@ -28,16 +28,26 @@ export default function DashboardPage() {
       if (!token || !user) return;
       try {
         let availableRooms: Room[] = [];
-        if (user.role === 'admin') {
-          availableRooms = await getAllRooms(token);
-        } else {
-          // Mock room objects from user.rooms string[]
+        
+        // Try to get rooms from JWT token
+        if (user.rooms && Array.isArray(user.rooms)) {
           availableRooms = user.rooms.map(id => ({
             room_id: id,
             room_name: `Room ${id}`, 
-            capacity: 0, lock_state: 'locked', current_occupancy: 0, ac_setpoint: 0, time_windows: {}, assigned_staff: []
+            capacity: 0, 
+            lock_state: 'locked' as const,
+            current_occupancy: 0, 
+            ac_setpoint: 0, 
+            time_windows: {}, 
+            assigned_staff: []
           }));
         }
+        
+        // If no rooms available, provide a placeholder
+        if (availableRooms.length === 0) {
+          setError('No rooms available. Please contact your administrator.');
+        }
+        
         setRooms(availableRooms);
         
         const savedRoomId = sessionStorage.getItem('selectedRoomId');
@@ -130,7 +140,7 @@ export default function DashboardPage() {
               title="Temperature" 
               value={data ? `${data.temperature}°C` : '-'}
               subtitle={`Setpoint: ${data?.ac_setpoint || '-'}°C`}
-              variant={data && data.temperature > 35 ? 'danger' : 'normal'}
+              variant={data && data.temperature !== null && data.temperature > 35 ? 'danger' : 'normal'}
             />
             <StatCard 
               title="Door State" 
@@ -149,7 +159,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-2 space-y-4">
               <h2 className="text-lg font-semibold border-b border-border pb-2">Recent Access</h2>
               <AccessLogTable 
-                events={data?.recent_events || []} 
+                events={(data?.recent_events as any) || []} 
                 loading={loading && !data} 
               />
             </div>

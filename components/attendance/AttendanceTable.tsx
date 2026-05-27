@@ -44,12 +44,12 @@ export default function AttendanceTable({ records, loading, total, page, limit, 
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {records.map(rec => (
-            <tr key={rec.log_id} className="hover:bg-surface2/20">
+          {records.map((rec, idx) => (
+            <tr key={`${rec.timestamp}-${idx}`} className="hover:bg-surface2/20">
               <td className="py-3 pr-4 whitespace-nowrap">{formatDateTime(rec.timestamp)}</td>
-              <td className="py-3 pr-4 max-w-[150px] truncate" title={rec.full_name}>{rec.full_name}</td>
-              <td className="py-3 pr-4 text-textMuted max-w-[120px] truncate" title={rec.matric_number}>{rec.matric_number}</td>
-              <td className="py-3 pr-4 max-w-[120px] truncate" title={rec.course_code}>{rec.course_code}</td>
+              <td className="py-3 pr-4 max-w-[150px] truncate" title={rec.full_name || ''}>{rec.full_name}</td>
+              <td className="py-3 pr-4 text-textMuted max-w-[120px] truncate" title={rec.matric_number || ''}>{rec.matric_number}</td>
+              <td className="py-3 pr-4 max-w-[120px] truncate" title={rec.course_code || ''}>{rec.course_code}</td>
               <td className="py-3 pr-4">
                 <Pill 
                   label={rec.event_type.toUpperCase()} 

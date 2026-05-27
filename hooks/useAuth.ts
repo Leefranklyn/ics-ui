@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/context/AuthContext';
 import { Role } from '@/types';
@@ -14,16 +14,21 @@ export function useAuth() {
 export function useRequireAuth(...allowedRoles: Role[]) {
   const { isLoggedIn, user } = useAuth();
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    // Wait for component to be hydrated
+    setIsChecking(false);
+
     if (!isLoggedIn) {
       router.replace('/login');
       return;
     }
+    
     if (allowedRoles.length > 0 && user && !allowedRoles.includes(user.role)) {
-      router.replace('/login');
+      router.replace('/dashboard');
     }
-  }, [isLoggedIn, user, router]);
+  }, [isLoggedIn, user, router, allowedRoles]);
 
-  return { isLoggedIn, user };
+  return { isLoggedIn, user, isChecking };
 }
