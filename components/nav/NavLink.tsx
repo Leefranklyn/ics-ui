@@ -16,10 +16,10 @@ export default function NavLink({ href, label, exact = false }: NavLinkProps) {
   return (
     <Link 
       href={href}
-      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+      className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border ${
         isActive 
-          ? 'bg-accent/10 text-accent' 
-          : 'text-textMuted hover:text-textBase hover:bg-surface2'
+          ? 'bg-accent-indigo/10 text-accent-cyan-bright border-accent-indigo/30' 
+          : 'text-text-muted hover:text-text-primary border-transparent hover:bg-bg-hover hover:border-border-subtle'
       }`}
     >
       {label}

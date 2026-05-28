@@ -8,11 +8,11 @@ interface PillProps {
 }
 
 const variantStyles: Record<PillVariant, string> = {
-  green: 'bg-success/20 text-success border border-success/30',
-  red: 'bg-danger/20 text-danger border border-danger/30',
-  amber: 'bg-warning/20 text-warning border border-warning/30',
-  blue: 'bg-accent/20 text-accent border border-accent/30',
-  gray: 'bg-surface2 text-textMuted border border-border',
+  green: 'badge badge-success',
+  red: 'badge badge-error',
+  amber: 'badge badge-warning',
+  blue: 'badge bg-cyan-950/20 text-cyan-400 border border-cyan-900/50',
+  gray: 'badge bg-border-subtle text-text-muted border border-border-default',
 };
 
 export default function Pill({ label, variant }: PillProps) {

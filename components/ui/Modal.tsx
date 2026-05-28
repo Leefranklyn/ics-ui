@@ -13,26 +13,31 @@ export default function Modal({ isOpen, onClose, title, children, onConfirm, con
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg/80 backdrop-blur-sm">
-      <div className="bg-surface border border-border rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-        <div className="p-4 border-b border-border flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-textBase">{title}</h2>
-          <button onClick={onClose} className="text-textMuted hover:text-textBase text-xl leading-none">&times;</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="card w-full max-w-md shadow-2xl animate-in scale-in duration-200 origin-center">
+        <div className="p-6 border-b border-border-subtle flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+          <button 
+            onClick={onClose} 
+            className="text-text-muted hover:text-text-primary text-2xl leading-none transition-colors duration-150"
+          >
+            ×
+          </button>
         </div>
-        <div className="p-4 text-textMuted">
+        <div className="p-6 text-text-secondary">
           {children}
         </div>
         {(onConfirm || confirmLabel) && (
-          <div className="p-4 border-t border-border flex justify-end gap-3 bg-surface/50">
+          <div className="p-6 border-t border-border-subtle flex justify-end gap-3 bg-bg-tertiary/50">
             <button 
               onClick={onClose}
-              className="px-4 py-2 rounded text-sm font-medium text-textBase bg-surface2 hover:bg-border transition-colors"
+              className="btn btn-secondary px-4 py-2.5 text-sm"
             >
               Cancel
             </button>
             <button 
               onClick={onConfirm}
-              className="px-4 py-2 rounded text-sm font-medium text-white bg-accent hover:bg-accentDim transition-colors"
+              className="btn btn-primary px-4 py-2.5 text-sm"
             >
               {confirmLabel}
             </button>
