@@ -138,7 +138,7 @@ export default function DashboardPage() {
             />
             <StatCard 
               title="Temperature" 
-              value={data ? `${data.temperature}°C` : '-'}
+              value={data && data.temperature !== null ? `${data.temperature.toFixed(1)}°C` : '-'}
               subtitle={`Setpoint: ${data?.ac_setpoint || '-'}°C`}
               variant={data && data.temperature !== null && data.temperature > 35 ? 'danger' : 'normal'}
             />

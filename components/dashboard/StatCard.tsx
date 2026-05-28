@@ -24,9 +24,9 @@ export default function StatCard({ title, value, subtitle, variant = 'normal' }:
       : 'text-accent-cyan-bright';
 
   return (
-    <div className={`card p-6 space-y-2 border-l-4 ${borderColor} group hover:border-border-focus`}>
-      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">{title}</p>
-      <p className={`text-3xl md:text-4xl font-bold font-mono ${valueColor} tracking-tight`}>
+    <div className={`card p-6 space-y-2 border-l-4 ${borderColor} group hover:border-border-focus overflow-hidden`}>
+      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider truncate">{title}</p>
+      <p className={`text-2xl md:text-3xl font-bold font-mono ${valueColor} tracking-tight truncate`}>
         {value}
       </p>
       {subtitle && (

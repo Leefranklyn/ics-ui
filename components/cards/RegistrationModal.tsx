@@ -25,6 +25,10 @@ export default function RegistrationModal({ isOpen, onClose, onSuccess, token }:
   const [error, setError] = useState<string | null>(null);
   const pollInterval = useRef<NodeJS.Timeout | null>(null);
 
+  // Department and Level options
+  const departments = ['Computer Science', 'Physics', 'Chemistry', 'Biology', 'Mathematics', 'Engineering'];
+  const levels = ['100', '200', '300', '400'];
+
   // Poll for registration status
   useEffect(() => {
     if (step === 'waiting' && token) {
@@ -154,25 +158,35 @@ export default function RegistrationModal({ isOpen, onClose, onSuccess, token }:
             )}
             {role === 'student' && (
               <div>
-                <label className="block text-sm font-medium text-textMuted mb-1">Level (e.g. 100) *</label>
-                <input
-                  type="number"
+                <label className="block text-sm font-medium text-textMuted mb-1">Level *</label>
+                <select
                   required={role === 'student'}
                   value={level}
                   onChange={(e) => setLevel(e.target.value)}
                   className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
-                />
+                >
+                  <option value="">Select Level</option>
+                  {levels.map(l => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-textMuted mb-1">Department</label>
-            <input
+            <label className="block text-sm font-medium text-textMuted mb-1">Department *</label>
+            <select
+              required
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
               className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
-            />
+            >
+              <option value="">Select Department</option>
+              {departments.map(d => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
           </div>
 
           {error && (

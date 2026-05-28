@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth, useRequireAuth } from '@/hooks/useAuth';
-import { getUsers, registerCard, updateCardStatus } from '@/lib/api';
-import { User, RegisterCardPayload } from '@/types';
+import { getUsers, updateCardStatus } from '@/lib/api';
+import { User } from '@/types';
 import { useToast } from '@/components/ui/Toast';
-import RegisterCardForm from '@/components/cards/RegisterCardForm';
 import RegistrationModal from '@/components/cards/RegistrationModal';
 import CardList from '@/components/cards/CardList';
 
@@ -16,9 +15,7 @@ export default function CardsPage() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
-  
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -34,23 +31,6 @@ export default function CardsPage() {
     }
     init();
   }, [token, showToast]);
-
-  const handleRegister = async (payload: RegisterCardPayload) => {
-    if (!token) return;
-    setRegistering(true);
-    try {
-      const res = await registerCard(payload, token);
-      showToast(`User registered successfully (ID: ${res.user_id})`, 'success');
-      // Refetch
-      const u = await getUsers(new URLSearchParams({ limit: '100', page: '1' }), token);
-      setUsers(u.items || []);
-    } catch (err: any) {
-      showToast(err.message || 'Failed to register card', 'error');
-      throw err; // throw to prevent form reset if it failed
-    } finally {
-      setRegistering(false);
-    }
-  };
 
   const handleStatusUpdate = async (userId: string, newStatus: string) => {
     if (!token) return;
@@ -84,31 +64,20 @@ export default function CardsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Card Management</h1>
+        <h1 className="text-3xl font-bold text-text-primary">User Card Management</h1>
         <button
           onClick={() => setShowRegistrationModal(true)}
-          className="px-4 py-2 rounded text-sm font-medium bg-accent hover:bg-accentDim text-white transition-colors"
+          className="btn-primary"
         >
-          + Tap to Register
+          + Register User
         </button>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <RegisterCardForm 
-            rooms={[]}  // Rooms are optional for registration
-            onSubmit={handleRegister} 
-            loading={registering} 
-          />
-        </div>
-        <div className="lg:col-span-2">
-          <CardList 
-            users={users} 
-            loading={loadingUsers} 
-            onUpdateStatus={handleStatusUpdate} 
-          />
-        </div>
-      </div>
+      <CardList 
+        users={users} 
+        loading={loadingUsers} 
+        onUpdateStatus={handleStatusUpdate} 
+      />
 
       <RegistrationModal
         isOpen={showRegistrationModal}
