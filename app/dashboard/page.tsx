@@ -41,6 +41,21 @@ export default function DashboardPage() {
             time_windows: {}, 
             assigned_staff: []
           }));
+          
+          // Fetch actual room names in parallel
+          try {
+            const roomDataPromises = availableRooms.map(room =>
+              getRoomDashboard(room.room_id, token).catch(() => null)
+            );
+            const roomDataResults = await Promise.all(roomDataPromises);
+            
+            availableRooms = availableRooms.map((room, idx) => ({
+              ...room,
+              room_name: roomDataResults[idx]?.room_name || room.room_name
+            }));
+          } catch (err) {
+            console.error('Failed to fetch room names:', err);
+          }
         }
         
         // If no rooms available, provide a placeholder

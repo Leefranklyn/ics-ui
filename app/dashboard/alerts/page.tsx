@@ -33,6 +33,24 @@ export default function AlertsPage() {
           time_windows: {}, 
           assigned_staff: []
         }));
+        
+        // Fetch actual room names in parallel
+        (async () => {
+          try {
+            const roomDataPromises = availableRooms.map(room =>
+              getRoomDashboard(room.room_id, token).catch(() => null)
+            );
+            const roomDataResults = await Promise.all(roomDataPromises);
+            
+            const updatedRooms = availableRooms.map((room, idx) => ({
+              ...room,
+              room_name: roomDataResults[idx]?.room_name || room.room_name
+            }));
+            setRooms(updatedRooms);
+          } catch (err) {
+            console.error('Failed to fetch room names:', err);
+          }
+        })();
       }
       setRooms(availableRooms);
     } catch (e) {
