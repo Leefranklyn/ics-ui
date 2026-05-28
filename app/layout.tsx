@@ -5,6 +5,9 @@ import './globals.css';
 export const metadata = {
   title: 'Smart Classroom System Dashboard',
   description: 'ICS platform for managing RFIDs, HVAC & Access',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

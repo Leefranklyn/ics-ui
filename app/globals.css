@@ -114,6 +114,15 @@
     @apply w-full bg-bg-tertiary border border-border-default rounded-lg px-4 py-2.5 text-text-primary;
     @apply placeholder-text-muted transition-all duration-200;
     @apply focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/20;
+    appearance: none;
+  }
+  
+  select.input {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 20px;
+    padding-right: 36px;
   }
 
   /* Table header */
