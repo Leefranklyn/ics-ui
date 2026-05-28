@@ -69,6 +69,11 @@ export default function DashboardPage() {
       const dbData = await getRoomDashboard(selectedRoomId, token);
       setData(dbData);
       
+      // Update rooms with actual room name from dashboard data
+      setRooms(prev => prev.map(r => 
+        r.room_id === selectedRoomId ? { ...r, room_name: dbData.room_name } : r
+      ));
+      
       const q = new URLSearchParams({ room_id: selectedRoomId, acknowledged: 'false' });
       const activeAlerts = await getAlerts(q, token);
       setAlerts(activeAlerts);
