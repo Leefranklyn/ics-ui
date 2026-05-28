@@ -75,7 +75,7 @@
 
   /* Primary button */
   .btn-primary {
-    @apply bg-accent-indigo text-white hover:bg-accent-indigo-dim;
+    @apply bg-accent-indigo text-white hover:bg-accent-indigo-dim px-4 py-2 rounded text-sm font-medium transition-colors;
   }
 
   /* Secondary button */

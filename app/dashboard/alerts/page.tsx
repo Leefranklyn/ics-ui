@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useInterval } from '@/hooks/useInterval';
-import { getAlerts } from '@/lib/api';
+import { getAlerts, getRoomDashboard } from '@/lib/api';
 import { Alert, Room } from '@/types';
 import AlertFeed from '@/components/dashboard/AlertFeed';
 
@@ -49,6 +49,19 @@ export default function AlertsPage() {
       
       const data = await getAlerts(p, token);
       setAlerts(data);
+      
+      // Update room name if we have a room filter
+      if (roomId) {
+        try {
+          const roomData = await getRoomDashboard(roomId, token);
+          setRooms(prev => prev.map(r => 
+            r.room_id === roomId ? { ...r, room_name: roomData.room_name } : r
+          ));
+        } catch (err) {
+          console.error('Failed to fetch room name:', err);
+        }
+      }
+      
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch alerts');

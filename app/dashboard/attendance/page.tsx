@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import FilterBar from '@/components/attendance/FilterBar';
 import AttendanceTable from '@/components/attendance/AttendanceTable';
-import { getAttendance, downloadAttendanceCsv } from '@/lib/api';
+import { getAttendance, downloadAttendanceCsv, getRoomDashboard } from '@/lib/api';
 import { AttendanceRecord, Room, ApiError } from '@/types';
 import { useToast } from '@/components/ui/Toast';
 import { formatDateTime } from '@/lib/utils';
@@ -69,6 +69,20 @@ export default function AttendancePage() {
         setRecords(res.items || []);
         setTotal(res.total || 0);
       }
+      
+      // Update room name if we have a room filter
+      const roomId = params.get('room_id');
+      if (roomId && token) {
+        try {
+          const roomData = await getRoomDashboard(roomId, token);
+          setRooms(prev => prev.map(r => 
+            r.room_id === roomId ? { ...r, room_name: roomData.room_name } : r
+          ));
+        } catch (err) {
+          console.error('Failed to fetch room name:', err);
+        }
+      }
+      
       lastParams.current = params;
     } catch (err: any) {
       setError(err.message || 'Failed to fetch attendance');

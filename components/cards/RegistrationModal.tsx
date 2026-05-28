@@ -114,31 +114,31 @@ export default function RegistrationModal({ isOpen, onClose, onSuccess, token }:
         <form onSubmit={handleStartRegistration} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-textMuted mb-1">Full Name *</label>
+              <label className="block text-sm font-medium text-text-muted mb-2">Full Name *</label>
               <input
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
+                className="input"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-textMuted mb-1">Email *</label>
+              <label className="block text-sm font-medium text-text-muted mb-2">Email *</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
+                className="input"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-textMuted mb-1">Role *</label>
+              <label className="block text-sm font-medium text-text-muted mb-2">Role *</label>
               <select
                 required
                 value={role}
                 onChange={(e) => setRole(e.target.value as Role)}
-                className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
+                className="input"
               >
                 <option value="student">Student</option>
                 <option value="staff">Staff</option>
@@ -147,23 +147,23 @@ export default function RegistrationModal({ isOpen, onClose, onSuccess, token }:
             </div>
             {role === 'student' && (
               <div>
-                <label className="block text-sm font-medium text-textMuted mb-1">Matric Number *</label>
+                <label className="block text-sm font-medium text-text-muted mb-2">Matric Number *</label>
                 <input
                   required={role === 'student'}
                   value={matricNumber}
                   onChange={(e) => setMatricNumber(e.target.value)}
-                  className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
+                  className="input"
                 />
               </div>
             )}
             {role === 'student' && (
               <div>
-                <label className="block text-sm font-medium text-textMuted mb-1">Level *</label>
+                <label className="block text-sm font-medium text-text-muted mb-2">Level *</label>
                 <select
                   required={role === 'student'}
                   value={level}
                   onChange={(e) => setLevel(e.target.value)}
-                  className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
+                  className="input"
                 >
                   <option value="">Select Level</option>
                   {levels.map(l => (
@@ -175,12 +175,12 @@ export default function RegistrationModal({ isOpen, onClose, onSuccess, token }:
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-textMuted mb-1">Department *</label>
+            <label className="block text-sm font-medium text-text-muted mb-2">Department *</label>
             <select
               required
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
-              className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-accent text-textBase"
+              className="input"
             >
               <option value="">Select Department</option>
               {departments.map(d => (

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { getEnergyAnalytics } from '@/lib/api';
+import { getEnergyAnalytics, getRoomDashboard } from '@/lib/api';
 import { AnalyticsData, Room } from '@/types';
 import OccupancyChart from '@/components/analytics/OccupancyChart';
 import TemperatureChart from '@/components/analytics/TemperatureChart';
@@ -75,6 +75,17 @@ export default function AnalyticsPage() {
       
       const res = await getEnergyAnalytics(roomId, p, token);
       setData(res);
+      
+      // Update room name from API response
+      try {
+        const roomData = await getRoomDashboard(roomId, token);
+        setRooms(prev => prev.map(r => 
+          r.room_id === roomId ? { ...r, room_name: roomData.room_name } : r
+        ));
+      } catch (err) {
+        console.error('Failed to fetch room name:', err);
+      }
+      
       sessionStorage.setItem('selectedRoomId', roomId);
       
       // Generate some mock time series data to pad out the charts since it's not in the type
