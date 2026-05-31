@@ -157,17 +157,17 @@ export default function AttendancePage() {
     window.print();
   };
 
+  const handleSessionRoomChange = (roomId: string) => {
+    setSelectedRoomId(roomId);
+  };
+
+  const handleSessionCourseChange = (courseId: string) => {
+    setSelectedCourseId(courseId);
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Attendance Reports</h1>
-
-      {activeSession && (
-        <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-3">
-          <p className="text-sm text-green-300">
-            ✓ Attendance session active in {rooms.find(r => r.room_id === activeSession.room_id)?.room_name || 'selected room'}
-          </p>
-        </div>
-      )}
 
       <SessionManager 
         roomId={selectedRoomId}
@@ -175,6 +175,9 @@ export default function AttendancePage() {
         rooms={rooms}
         courses={[]}
         token={token}
+        userRole={user?.role}
+        onRoomChange={handleSessionRoomChange}
+        onCourseChange={handleSessionCourseChange}
         onSessionChange={setActiveSession}
       />
 
