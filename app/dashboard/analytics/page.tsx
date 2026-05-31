@@ -23,11 +23,17 @@ export default function AnalyticsPage() {
   const [mockTsData, setMockTsData] = useState<{ occ: any[], temp: any[] }>({ occ: [], temp: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initError, setInitError] = useState<string | null>(null);
   
   const selectedRoom = rooms.find(r => r.room_id === roomId);
 
   useEffect(() => {
-    if (!token || !user) return;
+    if (!token || !user) {
+      console.log('Analytics: Waiting for auth...', { token: !!token, user: !!user });
+      return;
+    }
+    
+    console.log('Analytics: Initializing with user:', { role: user.role, rooms: user.rooms });
     try {
       let availableRooms: Room[] = [];
       if (user.rooms && Array.isArray(user.rooms)) {
@@ -41,6 +47,7 @@ export default function AnalyticsPage() {
           time_windows: {}, 
           assigned_staff: []
         }));
+        console.log('Analytics: Available rooms:', availableRooms.length);
         
         // Fetch actual room names in parallel
         (async () => {
@@ -59,6 +66,10 @@ export default function AnalyticsPage() {
             console.error('Failed to fetch room names:', err);
           }
         })();
+      } else {
+        const errMsg = `No rooms available. User.rooms: ${user.rooms}`;
+        console.warn('Analytics:', errMsg);
+        setInitError(errMsg);
       }
       setRooms(availableRooms);
       const saved = sessionStorage.getItem('selectedRoomId');
@@ -74,8 +85,10 @@ export default function AnalyticsPage() {
       setDateTo(today.toISOString().split('T')[0]);
       setDateFrom(lastWeek.toISOString().split('T')[0]);
       
-    } catch (e) {
-      console.error('Failed to initialize analytics:', e);
+    } catch (e: any) {
+      const errMsg = `Analytics init error: ${e.message || String(e)}`;
+      console.error(errMsg);
+      setInitError(errMsg);
     }
   }, [token, user]);
 
@@ -133,6 +146,13 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Analytics & Efficiency</h1>
+      
+      {initError && (
+        <div className="p-4 bg-danger/10 border border-danger/20 text-danger rounded">
+          <p className="font-medium">Initialization Error</p>
+          <p className="text-sm mt-1">{initError}</p>
+        </div>
+      )}
       
       <div className="bg-surface border border-border rounded-lg p-4 flex flex-col md:flex-row gap-4 items-end">
         <div>
