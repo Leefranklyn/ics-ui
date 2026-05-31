@@ -1,7 +1,7 @@
 import { 
   TokenResponse, RoomDashboardData, AttendanceRecord,
   AnalyticsData, Alert, User, Room, Course,
-  RegisterCardPayload, LoginPayload, PaginatedResponse, ApiError
+  RegisterCardPayload, LoginPayload, PaginatedResponse, ApiError, AttendanceSession
 } from '@/types';
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://intelligent-classroom-saver-api.onrender.com';
@@ -11,7 +11,7 @@ const BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://intelligent-classroom-
  * Handles authentication headers, error responses, and JSON parsing
  */
 async function request<T>(
-  path: string,
+  path: string, 
   token: string | null,
   options: RequestInit = {}
 ): Promise<T> {
@@ -230,6 +230,67 @@ export const cancelRegistration = async (token: string): Promise<{ status: strin
   return request<{ status: string }>('/api/admin/registration', token, {
     method: 'DELETE',
   });
+};
+
+
+/**
+ * ========== ADMIN - ATTENDANCE SESSIONS ==========
+ */
+
+/**
+ * Start an attendance session for a room and course
+ * Lecturers call this to begin marking attendance
+ * Requires staff or admin role
+ */
+export const startAttendanceSession = async (
+  payload: {
+    room_id: string;
+    course_id: string;
+    session_name?: string;
+  },
+  token: string
+): Promise<AttendanceSession> => {
+  return request<AttendanceSession>('/api/admin/attendance/session/start', token, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+};
+
+/**
+ * End/close an active attendance session
+ * Lecturers call this when they're done taking attendance
+ * Requires staff or admin role
+ */
+export const endAttendanceSession = async (
+  sessionId: string,
+  token: string
+): Promise<{ session_id: string; ended_at: string; status: string; total_marked: number }> => {
+  return request<{ session_id: string; ended_at: string; status: string; total_marked: number }>(
+    `/api/admin/attendance/session/${sessionId}/end`,
+    token,
+    { method: 'PUT' }
+  );
+};
+
+/**
+ * Get active attendance session for a room
+ * Returns the current active session if one exists
+ * Requires staff or admin role
+ */
+export const getActiveAttendanceSession = async (
+  roomId: string,
+  token: string
+): Promise<AttendanceSession | null> => {
+  try {
+    return await request<AttendanceSession>(
+      `/api/admin/attendance/session/active?room_id=${roomId}`,
+      token
+    );
+  } catch (err: any) {
+    // Return null if no active session exists
+    if (err.code === 404) return null;
+    throw err;
+  }
 };
 
 

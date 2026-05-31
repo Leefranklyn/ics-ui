@@ -4,8 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import FilterBar from '@/components/attendance/FilterBar';
 import AttendanceTable from '@/components/attendance/AttendanceTable';
+import SessionManager from '@/components/attendance/SessionManager';
 import { getAttendance, downloadAttendanceCsv, getRoomDashboard } from '@/lib/api';
-import { AttendanceRecord, Room, ApiError } from '@/types';
+import { AttendanceRecord, Room, ApiError, AttendanceSession } from '@/types';
 import { useToast } from '@/components/ui/Toast';
 import { formatDateTime } from '@/lib/utils';
 import Pill from '@/components/ui/Pill';
@@ -22,6 +23,9 @@ export default function AttendancePage() {
   const limit = 20;
 
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [activeSession, setActiveSession] = useState<AttendanceSession | null>(null);
   
   const lastParams = useRef<URLSearchParams>(new URLSearchParams());
   
@@ -110,6 +114,10 @@ export default function AttendancePage() {
   };
 
   const handleFilter = (p: URLSearchParams) => {
+    const roomId = p.get('room_id');
+    if (roomId !== selectedRoomId) {
+      setSelectedRoomId(roomId);
+    }
     p.set('page', '1');
     p.set('limit', limit.toString());
     loadData(p);
@@ -152,6 +160,23 @@ export default function AttendancePage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Attendance Reports</h1>
+
+      {activeSession && (
+        <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-3">
+          <p className="text-sm text-green-300">
+            ✓ Attendance session active in {rooms.find(r => r.room_id === activeSession.room_id)?.room_name || 'selected room'}
+          </p>
+        </div>
+      )}
+
+      <SessionManager 
+        roomId={selectedRoomId}
+        courseId={selectedCourseId}
+        rooms={rooms}
+        courses={[]}
+        token={token}
+        onSessionChange={setActiveSession}
+      />
 
       <FilterBar 
         rooms={rooms} 

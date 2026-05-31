@@ -16,6 +16,9 @@ interface AttendanceTableProps {
 }
 
 export default function AttendanceTable({ records, loading, total, page, limit, onPageChange }: AttendanceTableProps) {
+  // Filter to only show attendance records (not entry/exit)
+  const attendanceRecords = records.filter(rec => rec.event_type === 'attendance');
+
   if (loading) {
     return (
       <div className="w-full bg-surface border border-border rounded-lg p-4">
@@ -26,7 +29,7 @@ export default function AttendanceTable({ records, loading, total, page, limit, 
     );
   }
 
-  if (records.length === 0) {
+  if (attendanceRecords.length === 0) {
     return <EmptyState message="No attendance records found for the selected filters." />;
   }
 
@@ -35,28 +38,35 @@ export default function AttendanceTable({ records, loading, total, page, limit, 
       <table className="w-full text-left text-sm whitespace-nowrap">
         <thead className="text-textMuted border-b border-border">
           <tr>
-            <th className="font-medium pb-3 pr-4">Timestamp</th>
+            <th className="font-medium pb-3 pr-4">Time Marked</th>
             <th className="font-medium pb-3 pr-4">Name</th>
             <th className="font-medium pb-3 pr-4">Matric No.</th>
             <th className="font-medium pb-3 pr-4">Course</th>
-            <th className="font-medium pb-3 pr-4">Event Type</th>
-            <th className="font-medium pb-3">Door State</th>
+            <th className="font-medium pb-3 pr-4">Session</th>
+            <th className="font-medium pb-3">Status</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {records.map((rec, idx) => (
-            <tr key={`${rec.timestamp}-${idx}`} className="hover:bg-surface2/20">
-              <td className="py-3 pr-4 whitespace-nowrap">{formatDateTime(rec.timestamp)}</td>
+          {attendanceRecords.map((rec, idx) => (
+            <tr key={`${rec.marked_at || rec.timestamp}-${idx}`} className="hover:bg-surface2/20">
+              <td className="py-3 pr-4 whitespace-nowrap">{formatDateTime(rec.marked_at || rec.timestamp)}</td>
               <td className="py-3 pr-4 max-w-[150px] truncate" title={rec.full_name || ''}>{rec.full_name}</td>
               <td className="py-3 pr-4 text-textMuted max-w-[120px] truncate" title={rec.matric_number || ''}>{rec.matric_number}</td>
               <td className="py-3 pr-4 max-w-[120px] truncate" title={rec.course_code || ''}>{rec.course_code}</td>
               <td className="py-3 pr-4">
+                <div className="text-xs" title={rec.session_name || ''}>
+                  <p className="font-medium truncate max-w-[150px]">{rec.session_name || 'Session'}</p>
+                  {rec.session_started_at && (
+                    <p className="text-textMuted">{formatDateTime(rec.session_started_at)}</p>
+                  )}
+                </div>
+              </td>
+              <td className="py-3">
                 <Pill 
-                  label={rec.event_type.toUpperCase()} 
-                  variant={rec.event_type === 'entry' ? 'green' : rec.event_type === 'exit' ? 'blue' : 'red'} 
+                  label="MARKED" 
+                  variant="green" 
                 />
               </td>
-              <td className="py-3 capitalize text-textMuted">{rec.door_state}</td>
             </tr>
           ))}
         </tbody>

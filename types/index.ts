@@ -2,7 +2,7 @@ export type Role = 'student' | 'staff' | 'admin';
 
 export type CardStatus = 'active' | 'suspended';
 
-export type EventType = 'entry' | 'exit' | 'denied';
+export type EventType = 'entry' | 'exit' | 'denied' | 'attendance';
 
 export type DoorState = 'entry' | 'exit';
 
@@ -19,6 +19,18 @@ export type AlertType =
   | 'unauth_attempt';
 
 export type Severity = 'warning' | 'critical';
+
+export type SessionStatus = 'active' | 'closed';
+
+export interface AttendanceSession {
+  session_id: string;
+  room_id: string;
+  course_id: string;
+  started_at: string;
+  ended_at: string | null;
+  status: SessionStatus;
+  marked_count?: number;
+}
 
 export interface TokenPayload {
   sub: string; // User UUID
@@ -127,7 +139,10 @@ export interface AttendanceRecord {
   matric_number: string | null;
   course_code: string | null;
   event_type: EventType;
-  door_state: DoorState;
+  session_id?: string;
+  session_name?: string;
+  session_started_at?: string;
+  marked_at?: string;
 }
 
 export interface AnalyticsData {
