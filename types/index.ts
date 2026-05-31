@@ -23,11 +23,11 @@ export type Severity = 'warning' | 'critical';
 export type SessionStatus = 'active' | 'closed';
 
 export interface AttendanceSession {
-  session_id: string;
-  room_id: string;
-  course_id: string;
-  started_at: string;
-  ended_at: string | null;
+  session_id: string | null;
+  room_id?: string;
+  course_id?: string;
+  started_at?: string;
+  ended_at?: string | null;
   status: SessionStatus;
   marked_count?: number;
 }

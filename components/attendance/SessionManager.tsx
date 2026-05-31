@@ -79,7 +79,7 @@ export default function SessionManager({
   };
 
   const handleEndSession = async () => {
-    if (!activeSession || !token) return;
+    if (!activeSession || !activeSession.session_id || !token) return;
 
     setLoading(true);
     try {
@@ -110,15 +110,21 @@ export default function SessionManager({
               <span className="text-sm font-medium text-green-300">Session Active</span>
             </div>
             <div className="text-sm space-y-1">
-              <p className="text-textMuted">
-                <span className="font-medium">Room:</span> {room?.room_name || activeSession.room_id}
-              </p>
-              <p className="text-textMuted">
-                <span className="font-medium">Course:</span> {course?.course_code || activeSession.course_id}
-              </p>
-              <p className="text-textMuted">
-                <span className="font-medium">Started:</span> {formatDateTime(activeSession.started_at)}
-              </p>
+              {activeSession.room_id && (
+                <p className="text-textMuted">
+                  <span className="font-medium">Room:</span> {room?.room_name || activeSession.room_id}
+                </p>
+              )}
+              {activeSession.course_id && (
+                <p className="text-textMuted">
+                  <span className="font-medium">Course:</span> {course?.course_code || activeSession.course_id}
+                </p>
+              )}
+              {activeSession.started_at && (
+                <p className="text-textMuted">
+                  <span className="font-medium">Started:</span> {formatDateTime(activeSession.started_at)}
+                </p>
+              )}
               <p className="text-textMuted">
                 <span className="font-medium">Students Marked:</span> {activeSession.marked_count || 0}
               </p>

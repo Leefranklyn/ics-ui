@@ -274,23 +274,26 @@ export const endAttendanceSession = async (
 
 /**
  * Get active attendance session for a room
- * Returns the current active session if one exists
+ * Returns the current active session if one exists, or null state if none
+ * Response when active: { session_id, room_id, course_id, started_at, status: "active", marked_count }
+ * Response when none: { session_id: null, status: "none" }
  * Requires staff or admin role
  */
 export const getActiveAttendanceSession = async (
   roomId: string,
   token: string
 ): Promise<AttendanceSession | null> => {
-  try {
-    return await request<AttendanceSession>(
-      `/api/admin/attendance/session/active?room_id=${roomId}`,
-      token
-    );
-  } catch (err: any) {
-    // Return null if no active session exists
-    if (err.code === 404) return null;
-    throw err;
+  const response = await request<AttendanceSession>(
+    `/api/admin/attendance/session/active?room_id=${roomId}`,
+    token
+  );
+  
+  // If session_id is null, no active session exists - return null
+  if (response.session_id === null) {
+    return null;
   }
+  
+  return response;
 };
 
 
