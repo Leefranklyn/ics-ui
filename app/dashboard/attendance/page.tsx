@@ -5,8 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import FilterBar from '@/components/attendance/FilterBar';
 import AttendanceTable from '@/components/attendance/AttendanceTable';
 import SessionManager from '@/components/attendance/SessionManager';
-import { getAttendance, downloadAttendanceCsv, getRoomDashboard } from '@/lib/api';
-import { AttendanceRecord, Room, ApiError, AttendanceSession } from '@/types';
+import { getAttendance, downloadAttendanceCsv, getRoomDashboard, getCoursesByRoom } from '@/lib/api';
+import { AttendanceRecord, Room, ApiError, AttendanceSession, Course } from '@/types';
 import { useToast } from '@/components/ui/Toast';
 import { formatDateTime } from '@/lib/utils';
 import Pill from '@/components/ui/Pill';
@@ -23,6 +23,7 @@ export default function AttendancePage() {
   const limit = 20;
 
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [activeSession, setActiveSession] = useState<AttendanceSession | null>(null);
@@ -76,6 +77,26 @@ export default function AttendancePage() {
       console.error('Failed to initialize rooms:', e);
     }
   }, [token, user]);
+
+  // Fetch courses when room is selected
+  useEffect(() => {
+    if (!selectedRoomId || !token) {
+      setCourses([]);
+      return;
+    }
+
+    const fetchCourses = async () => {
+      try {
+        const courseList = await getCoursesByRoom(selectedRoomId, token);
+        setCourses(courseList);
+      } catch (err) {
+        console.error('Failed to fetch courses for room:', err);
+        setCourses([]);
+      }
+    };
+
+    fetchCourses();
+  }, [selectedRoomId, token]);
 
   const loadData = async (params: URLSearchParams) => {
     if (!token) return;
@@ -173,7 +194,7 @@ export default function AttendancePage() {
         roomId={selectedRoomId}
         courseId={selectedCourseId}
         rooms={rooms}
-        courses={[]}
+        courses={courses}
         token={token}
         userRole={user?.role}
         onRoomChange={handleSessionRoomChange}

@@ -298,6 +298,15 @@ export const getActiveAttendanceSession = async (
 
 
 /**
+ * Get courses for a specific room
+ * Returns list of courses taught in that room
+ * Requires staff or admin role
+ */
+export const getCoursesByRoom = async (roomId: string, token: string): Promise<Course[]> => {
+  return request<Course[]>(`/api/admin/rooms/${roomId}/courses`, token);
+};
+
+/**
  * ========== UTILITIES ==========
  */
 
