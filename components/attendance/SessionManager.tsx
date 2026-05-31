@@ -36,9 +36,9 @@ export default function SessionManager({
   const [localRoomId, setLocalRoomId] = useState(roomId);
   const [localCourseId, setLocalCourseId] = useState(courseId);
 
-  // Only show for staff and admin
-  const isStaffOrAdmin = userRole === 'staff' || userRole === 'admin';
-  if (!isStaffOrAdmin) {
+  // Only show for lecturers/staff (not admins)
+  const isLecturer = userRole === 'staff';
+  if (!isLecturer) {
     return null;
   }
 
@@ -162,12 +162,19 @@ export default function SessionManager({
           <select 
             value={localCourseId || ''} 
             onChange={e => handleCourseChange(e.target.value)}
-            disabled={!localRoomId || courses.length === 0}
+            disabled={!localRoomId}
             className="w-full bg-surface2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
           >
             <option value="">-- Choose a course --</option>
-            {courses.map(c => <option key={c.course_id} value={c.course_id}>{c.course_code}</option>)}
+            {courses.length > 0 ? (
+              courses.map(c => <option key={c.course_id} value={c.course_id}>{c.course_code}</option>)
+            ) : (
+              <option disabled>No courses available - contact admin</option>
+            )}
           </select>
+          {courses.length === 0 && (
+            <p className="text-xs text-yellow-400 mt-1">Note: Courses not yet loaded. You may need to contact your administrator.</p>
+          )}
         </div>
       </div>
 
